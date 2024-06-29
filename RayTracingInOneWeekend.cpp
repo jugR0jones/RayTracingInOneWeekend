@@ -4,29 +4,36 @@
 
 #include <iostream>
 
-bool hit_sphere(const point3& center, const double radius, const ray& r)
+double hit_sphere(const point3& center, const double radius, const ray& r)
 {
     const vec3 oc = center - r.origin();
-    const double a = dot(r.direction(), r.direction());
-    const double b = -2.0 * dot(r.direction(), oc);
-    const double c = dot(oc, oc) - radius * radius;
-    const double discriminant = b * b - 4 * a * c;
+    const double a = r.direction().length_squared();
+    const double h = dot(r.direction(), oc);
+    const double c = oc.length_squared() - radius * radius;
+    const double discriminant = h * h - a * c;
 
-    return (discriminant >= 0);
+    if(discriminant < 0.0)
+    {
+        return -1.0;
+    }
+    
+    return (h -sqrt(discriminant)) / a;
 }
 
 color ray_color(const ray& r)
 {
-    if (hit_sphere(point3(0.0, 0.0, -1.0), 0.5, r))
+    const double t = hit_sphere(point3(0.0, 0.0, -1.0), 0.5, r);
+    if (t > 0.0)
     {
-        return {1.0, 0.0, 0.0};
+        const vec3 N = unit_vector(r.at(t) - vec3(0.0, 0.0, -1.0));
+
+        return 0.5 * color(N.x() + 1.0, N.y() + 1.0, N.z() + 1.0);
     }
 
     const vec3 unit_direction = unit_vector(r.direction());
     const double a = 0.5 * (unit_direction.y() + 1.0);
 
     const double b = 1.0 - a;
-
     return (1.0 - a) * color(1.0, 1.0, 1.0) + a * color(0.5, 0.7, 1.0);
 }
 
