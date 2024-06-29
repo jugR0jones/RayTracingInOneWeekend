@@ -38,8 +38,10 @@ public:
 
         rec.t = root;
         rec.p = r.at(rec.t);
-        rec.normal = (rec.p - center_) / radius_;
+        const vec3 outward_normal = (rec.p - center_) / radius_;
 
+        rec.set_face_normal(r, outward_normal);
+        
         return true;
     }
 
