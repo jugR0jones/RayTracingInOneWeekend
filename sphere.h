@@ -1,5 +1,7 @@
 ﻿#pragma once
+
 #include "hittable.h"
+#include "interval.h"
 #include "ray.h"
 
 class sphere : public hittable
@@ -9,7 +11,7 @@ public:
     {
     }
 
-    bool hit(const ray& r, double ray_tmin, double ray_tmax, hit_record& rec) const override
+    bool hit(const ray& r, const interval ray_t, hit_record& rec) const override
     {
         const vec3 oc = center_ - r.origin();
         const double a = r.direction().length_squared();
@@ -26,10 +28,10 @@ public:
         
         // Find the nearest root that lies in the acceptable range
         double root = (h - sqrtd) / a;
-        if(root <= ray_tmin || root > ray_tmax)
+        if(!ray_t.surrounds(root))
         {
             root = (h + sqrtd / a);
-            if(root <= ray_tmin || root > ray_tmax)
+            if(!ray_t.surrounds(root))
             {
                 return false;
             }

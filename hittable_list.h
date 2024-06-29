@@ -1,21 +1,18 @@
 ﻿#pragma once
 
-#include <vector>
-
 #include "hittable.h"
+#include "interval.h"
 
-class hittable;
+#include <vector>
 
 class hittable_list : public hittable
 {
 public:
     std::vector<std::shared_ptr<hittable>> objects;
 
-    hittable_list()
-    {
-    }
+    hittable_list() = default;
 
-    hittable_list(std::shared_ptr<hittable> object)
+    explicit hittable_list(const std::shared_ptr<hittable>& object)
     {
         add(object);
     }
@@ -25,20 +22,20 @@ public:
         objects.clear();
     }
 
-    void add(std::shared_ptr<hittable> object)
+    void add(const std::shared_ptr<hittable>& object)
     {
         objects.push_back(object);
     }
 
-    bool hit(const ray& r, double ray_tmin, double ray_tmax, hit_record& rec) const override
+    bool hit(const ray& r, const interval ray_t, hit_record& rec) const override
     {
         hit_record temp_rec;
         bool hit_anything = false;
-        double closest_so_far = ray_tmax;
+        double closest_so_far = ray_t.max;
 
         for(const std::shared_ptr<hittable>& object : objects)
         {
-            if(object->hit(r, ray_tmin, closest_so_far, temp_rec))
+            if(object->hit(r, interval(ray_t.min, closest_so_far), temp_rec))
             {
                 hit_anything = true;
                 closest_so_far = temp_rec.t;
