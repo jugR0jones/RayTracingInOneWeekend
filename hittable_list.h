@@ -1,23 +1,21 @@
 ﻿#pragma once
-#include <memory>
+
 #include <vector>
 
 #include "hittable.h"
 
 class hittable;
-using std::make_shared;
-using std::shared_ptr;
 
 class hittable_list : public hittable
 {
 public:
-    std::vector<shared_ptr<hittable>> objects;
+    std::vector<std::shared_ptr<hittable>> objects;
 
     hittable_list()
     {
     }
 
-    hittable_list(shared_ptr<hittable> object)
+    hittable_list(std::shared_ptr<hittable> object)
     {
         add(object);
     }
@@ -27,7 +25,7 @@ public:
         objects.clear();
     }
 
-    void add(shared_ptr<hittable> object)
+    void add(std::shared_ptr<hittable> object)
     {
         objects.push_back(object);
     }
@@ -38,7 +36,7 @@ public:
         bool hit_anything = false;
         double closest_so_far = ray_tmax;
 
-        for(const shared_ptr<hittable>& object : objects)
+        for(const std::shared_ptr<hittable>& object : objects)
         {
             if(object->hit(r, ray_tmin, closest_so_far, temp_rec))
             {

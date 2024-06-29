@@ -1,8 +1,7 @@
 ﻿#pragma once
+
 #include "ray.h"
 #include "vec3.h"
-
-class ray;
 
 class hit_record
 {

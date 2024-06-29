@@ -1,40 +1,21 @@
-#include "color.h"
-#include "ray.h"
-#include "vec3.h"
+#include "rtweekend.h"
+#include "hittable.h"
+#include "hittable_list.h"
+#include "sphere.h"
 
-#include <iostream>
-
-double hit_sphere(const point3& center, const double radius, const ray& r)
+color ray_color(const ray& r, const hittable& world)
 {
-    const vec3 oc = center - r.origin();
-    const double a = r.direction().length_squared();
-    const double h = dot(r.direction(), oc);
-    const double c = oc.length_squared() - radius * radius;
-    const double discriminant = h * h - a * c;
-
-    if(discriminant < 0.0)
+    hit_record rec;
+    if(world.hit(r, 0.0, infinity, rec))
     {
-        return -1.0;
-    }
-    
-    return (h -sqrt(discriminant)) / a;
-}
-
-color ray_color(const ray& r)
-{
-    const double t = hit_sphere(point3(0.0, 0.0, -1.0), 0.5, r);
-    if (t > 0.0)
-    {
-        const vec3 N = unit_vector(r.at(t) - vec3(0.0, 0.0, -1.0));
-
-        return 0.5 * color(N.x() + 1.0, N.y() + 1.0, N.z() + 1.0);
+        return 0.5 * (rec.normal + color(1.0, 1.0, 1.0));
     }
 
     const vec3 unit_direction = unit_vector(r.direction());
     const double a = 0.5 * (unit_direction.y() + 1.0);
 
     const double b = 1.0 - a;
-    return (1.0 - a) * color(1.0, 1.0, 1.0) + a * color(0.5, 0.7, 1.0);
+    return b * color(1.0, 1.0, 1.0) + a * color(0.5, 0.7, 1.0);
 }
 
 int main(int argc, char* argv[])
@@ -47,8 +28,13 @@ int main(int argc, char* argv[])
     int image_height = static_cast<int>(image_width / aspect_ratio);
     image_height = (image_height < 1) ? 1 : image_height;
 
-    // Camera
+    // World
+    hittable_list world;
 
+    world.add(make_shared<sphere>(point3(0.0, 0.0, -1.0), 0.5));
+    world.add(make_shared<sphere>(point3(0.0, -100.5, -1.0), 100.0));
+    
+    // Camera
     constexpr double focal_length = 1.0;
     constexpr double viewport_height = 2.0;
     const double viewport_width = viewport_height * (static_cast<double>(image_width) / image_height);
@@ -81,7 +67,7 @@ int main(int argc, char* argv[])
             auto ray_direction = pixel_center - camera_center;
             ray r(camera_center, ray_direction);
 
-            color pixel_color = ray_color(r);
+            color pixel_color = ray_color(r, world);
             write_color(std::cout, pixel_color);
         }
     }

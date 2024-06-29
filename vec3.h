@@ -2,9 +2,7 @@
 #define VEC3_H
 
 #include <cmath>
-#include <iostream>
-
-using std::sqrt;
+#include <ostream>
 
 class vec3 {
   public:
